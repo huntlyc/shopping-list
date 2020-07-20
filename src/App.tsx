@@ -50,11 +50,11 @@ function App() {
 
     return (
         <div className="app">
-            <h2 className="ui header">Shopping List</h2>
-            <DateInfo />
-            <div className="ui divider"></div>
+            <header className="ui segment fixed">
+                <h2 className="ui header">Shopping List</h2>
+                <DateInfo />
+            </header>
             <ShoppingList items={items} updateItem={onItemUpdate} deleteItem={onDeleteItem} />
-            <div className="ui divider"></div>
             <AddItemForm addItemHandler={addItemHandler} />
         </div>
     );

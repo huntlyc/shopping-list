@@ -1,3 +1,29 @@
+html,
+body{
+    width: 100%;
+}
+
+.body{
+    padding-top: 100px;
+}
+
 .app {
-    padding: 3rem 1rem;
+    padding: 100px 1rem;
+}
+
+header.ui.segment.fixed{
+    position: fixed;
+    top:0;
+    left: 0;
+    width: 100%;
+    background-color: #fff;
+    z-index: 1;
+    
+}
+
+form.ui.segment.addItemForm{
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%
 }

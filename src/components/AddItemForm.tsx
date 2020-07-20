@@ -36,7 +36,7 @@ const AddItemForm: React.FC<AddItemFormProps> = ({addItemHandler}) => {
     };
 
     return (
-        <form onSubmit={onSubmitHandler}>
+        <form className="ui segment addItemForm" onSubmit={onSubmitHandler}>
             <div className="ui fluid action input">
                 <input
                     onChange={onNameInput}
