@@ -1,19 +1,19 @@
 html,
-body{
+body {
     width: 100%;
 }
 
-.body{
+.body {
     padding-top: 100px;
 }
 
 .sr-only:not(:focus):not(:active) {
-    clip: rect(0 0 0 0); 
+    clip: rect(0 0 0 0);
     clip-path: inset(50%);
     height: 1px;
     overflow: hidden;
     position: absolute;
-    white-space: nowrap; 
+    white-space: nowrap;
     width: 1px;
 }
 
@@ -21,32 +21,43 @@ body{
     padding: 100px 1rem;
 }
 
-header.ui.segment.fixed{
+.app h1.ui.header {
+    font-size: 18px;
+}
+
+header.ui.segment.fixed {
     position: fixed;
-    top:0;
+    top: 0;
     left: 0;
     width: 100%;
     background-color: #fff;
     z-index: 1;
-    
 }
 
-form.ui.segment.addItemForm{
+form.ui.segment.addItemForm {
     position: fixed;
     bottom: 0;
     left: 0;
-    width: 100%
+    width: 100%;
 }
 
-.app ul.ui.list{
+.app ul.ui.list {
     margin-left: 0;
     list-style-type: none;
 }
 
-.app ul.ui.list li{
+.app ul.ui.list li {
     list-style-type: none;
 }
 
-.app ul.ui.list li:before{
+.app ul.ui.list li:before {
     display: none;
+}
+
+section.ticked-items {
+    color: #767676;
+}
+
+section.ticked-items h2 {
+    font-size: 18px;
 }

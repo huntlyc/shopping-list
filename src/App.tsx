@@ -1,25 +1,54 @@
 import React, {useState, useEffect} from 'react';
 import './App.css';
 import ShoppingList from './components/ShoppingList';
+import ShoppingListTicked from './components/ShoppingListTicked';
 import AddItemForm from './components/AddItemForm';
 import {iItem} from './components/Item';
 import DateInfo from './components/DateInfo';
 
 function App() {
-    const [items, setItems] = useState<iItem[]>([]);
+    const [activeItems, setActiveItems] = useState<iItem[]>([]);
+    const [tickedItems, setTickedItems] = useState<iItem[]>([]);
+
+    const isInList = (item: iItem, list: iItem[]) =>
+        list.find((searchItem: iItem) => item.name.toLowerCase() === searchItem.name.toLowerCase());
+    const deleteFromList = (item: iItem, list: iItem[]): iItem[] => list.filter((curItem) => curItem.id !== item.id);
+    const deleteAllTickedItems = () => setTickedItems([]);
 
     const addItemHandler = (item: iItem) => {
-        const itemsFromState = items.slice(0);
-        itemsFromState.push(item);
-        setItems(itemsFromState);
+        let activeItemsClone = activeItems.slice(0);
+        let tickedItemsClone = tickedItems.slice(0);
+
+        // If in ticked items, untick and move into active items
+        const exitingItem = isInList(item, tickedItems);
+        if (exitingItem) {
+            exitingItem.checked = false;
+            setTickedItems(deleteFromList(exitingItem, tickedItemsClone));
+
+            activeItemsClone.push(exitingItem);
+            setActiveItems(activeItemsClone);
+
+            return false;
+        }
+
+        // If aleady in active items, TODO scroll to exisiting element
+        if (isInList(item, activeItems)) {
+            return false;
+        }
+
+        // new item, not in exisiting list, add to active
+        activeItemsClone.push(item);
+        setActiveItems(activeItemsClone);
     };
 
-    const onDeleteItem = (item: iItem) => {
-        setItems(items.filter((curItem) => curItem.id !== item.id));
+    const onDeleteActiveItem = (item: iItem) => {
+        setActiveItems(deleteFromList(item, activeItems.slice(0)));
     };
 
     const onItemUpdate = (item: iItem) => {
-        const itemsFromState = items.slice(0);
+        let itemsFromState = activeItems.slice(0);
+        let tickedItemsFromState = tickedItems.slice(0);
+
         for (let i = 0; i < itemsFromState.length; i++) {
             const curItem = itemsFromState[i];
             if (curItem.id === item.id) {
@@ -28,33 +57,64 @@ function App() {
             }
         }
 
-        setItems(itemsFromState);
+        // If ticked switch from active list to ticked list
+        if (item.checked) {
+            tickedItemsFromState.unshift(item);
+            itemsFromState = deleteFromList(item, itemsFromState);
+        }
+
+        setActiveItems(itemsFromState);
+        setTickedItems(tickedItemsFromState);
     };
 
+    //On load, pull from local storage
     useEffect(() => {
-        const storageItems = localStorage.getItem('shopList');
-        if (storageItems) {
-            setItems(JSON.parse(storageItems));
+        //Active items
+        const storageActiveItems = localStorage.getItem('shopList');
+        if (storageActiveItems) {
+            setActiveItems(JSON.parse(storageActiveItems));
+        }
+
+        //Ticked list
+        const storageTickedItems = localStorage.getItem('shopListTicked');
+        if (storageTickedItems) {
+            setTickedItems(JSON.parse(storageTickedItems));
         }
     }, []);
 
+    // On list update, save to local storage
     useEffect(() => {
-        const storageItems = localStorage.getItem('shopList');
+        // Active items
+        const storageActiveItems = localStorage.getItem('shopList');
 
-        if (storageItems) {
+        if (storageActiveItems) {
             localStorage.removeItem('shopList');
         }
 
-        localStorage.setItem('shopList', JSON.stringify(items));
-    }, [items]);
+        localStorage.setItem('shopList', JSON.stringify(activeItems));
+
+        // Ticked items
+        const storageTickedItems = localStorage.getItem('shopListTicked');
+        if (storageTickedItems) {
+            localStorage.removeItem('shopListTicked');
+        }
+
+        localStorage.setItem('shopListTicked', JSON.stringify(tickedItems));
+    }, [activeItems, tickedItems]);
 
     return (
         <div className="app">
             <header className="ui segment fixed">
-                <h2 className="ui header">Shopping List</h2>
+                <h1 className="ui header">Shopping List</h1>
                 <DateInfo />
             </header>
-            <ShoppingList items={items} updateItem={onItemUpdate} deleteItem={onDeleteItem} />
+            <ShoppingList items={activeItems} updateItem={onItemUpdate} deleteItem={onDeleteActiveItem} />
+            {tickedItems.length > 0 && (
+                <>
+                    <div className="ui divider"></div>
+                    <ShoppingListTicked items={tickedItems} deleteAllTicked={deleteAllTickedItems} />
+                </>
+            )}
             <AddItemForm addItemHandler={addItemHandler} />
         </div>
     );

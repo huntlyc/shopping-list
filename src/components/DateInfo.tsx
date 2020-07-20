@@ -9,12 +9,16 @@ const DateInfo: React.FC = () => {
     return (
         <>
             <div className="ui basic grey label">
-                <i className="calendar alternate outline icon"><span className="sr-only">Today's Date</span></i>
+                <i className="calendar alternate outline icon">
+                    <span className="sr-only">Today's Date</span>
+                </i>
                 {currentDateString}
             </div>{' '}
             <i className="ui icon grey angle double right" aria-hidden="true"></i>
             <div className="ui basic grey label">
-                <i className="calendar plus alternate outline icon"><span className="sr-only">Date in 7 days</span></i>
+                <i className="calendar plus alternate outline icon">
+                    <span className="sr-only">Date in 7 days</span>
+                </i>
                 {nextWeekString}
             </div>
         </>

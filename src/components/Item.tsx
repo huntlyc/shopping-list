@@ -64,7 +64,9 @@ export const Item: React.FC<ItemProps> = ({item, updateItem, deleteItem}) => {
                 <label aria-label="Check/Uncheck Item"></label>
             </div>
             <div className="ui action input">
-                <label htmlFor={`${id}_${name}`} className="sr-only">Item</label>
+                <label htmlFor={`${id}_${name}`} className="sr-only">
+                    Item
+                </label>
                 <input id={`${id}_${name}`} type="text" ref={inputRef} value={name} onChange={onItemNameChange} />
                 <button className="ui red right icon button" onClick={handleDelete}>
                     <i className="trash alternate outline icon" aria-hidden="true"></i>
