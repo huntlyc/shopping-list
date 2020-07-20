@@ -61,12 +61,14 @@ export const Item: React.FC<ItemProps> = ({item, updateItem, deleteItem}) => {
         <>
             <div className="ui checkbox">
                 <input type="checkbox" ref={checkboxRef} checked={item.checked} onChange={onItemCheckChange} />
-                <label></label>
+                <label aria-label="Check/Uncheck Item"></label>
             </div>
             <div className="ui action input">
-                <input type="text" ref={inputRef} value={name} onChange={onItemNameChange} />
+                <label htmlFor={`${id}_${name}`} className="sr-only">Item</label>
+                <input id={`${id}_${name}`} type="text" ref={inputRef} value={name} onChange={onItemNameChange} />
                 <button className="ui red right icon button" onClick={handleDelete}>
-                    <i className="trash alternate outline icon"></i>
+                    <i className="trash alternate outline icon" aria-hidden="true"></i>
+                    <span className="sr-only">Delete Item</span>
                 </button>
             </div>
         </>

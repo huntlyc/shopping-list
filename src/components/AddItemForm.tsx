@@ -38,6 +38,7 @@ const AddItemForm: React.FC<AddItemFormProps> = ({addItemHandler}) => {
     return (
         <form className="ui segment addItemForm" onSubmit={onSubmitHandler}>
             <div className="ui fluid action input">
+                <label htmlFor="newItem" className="sr-only">Item Name</label>
                 <input
                     onChange={onNameInput}
                     ref={itemNameRef}
@@ -47,7 +48,7 @@ const AddItemForm: React.FC<AddItemFormProps> = ({addItemHandler}) => {
                     value={itemName}
                 />
                 <button className="ui teal right labeled icon button">
-                    <i className="cart plus icon"></i>Add
+                    <i className="cart plus icon" aria-hidden="true"></i>Add
                 </button>
             </div>
         </form>

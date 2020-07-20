@@ -9,13 +9,13 @@ type ShoppingListProps = {
 
 const ShoppingList: React.FC<ShoppingListProps> = ({items, updateItem, deleteItem}) => {
     return (
-        <div className="ui relaxed list">
+        <ul className="ui relaxed list">
             {items.map((item) => (
-                <div className="item" key={item.id}>
+                <li className="item" key={item.id}>
                     <Item item={item} deleteItem={deleteItem} updateItem={updateItem} />
-                </div>
+                </li>
             ))}
-        </div>
+        </ul>
     );
 };
 
