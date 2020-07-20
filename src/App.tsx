@@ -1,9 +1,9 @@
 import React, {useState, useEffect} from 'react';
 import './App.css';
-import ShoppingList from './ShoppingList';
-import AddItemForm from './AddItemForm';
-import {iItem} from './Item';
-import DateInfo from './DateInfo';
+import ShoppingList from './components/ShoppingList';
+import AddItemForm from './components/AddItemForm';
+import {iItem} from './components/Item';
+import DateInfo from './components/DateInfo';
 
 function App() {
     const [items, setItems] = useState<iItem[]>([]);
