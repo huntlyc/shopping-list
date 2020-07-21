@@ -5,6 +5,7 @@ import ShoppingListTicked from './components/ShoppingListTicked';
 import AddItemForm from './components/AddItemForm';
 import {iItem} from './components/Item';
 import DateInfo from './components/DateInfo';
+import {DragDropContext, Droppable} from 'react-beautiful-dnd';
 
 function App() {
     const [activeItems, setActiveItems] = useState<iItem[]>([]);
@@ -14,6 +15,28 @@ function App() {
         list.find((searchItem: iItem) => item.name.toLowerCase() === searchItem.name.toLowerCase());
     const deleteFromList = (item: iItem, list: iItem[]): iItem[] => list.filter((curItem) => curItem.id !== item.id);
     const deleteAllTickedItems = () => setTickedItems([]);
+
+    const reorder = (list: iItem[], startIndex: number, endIndex: number) => {
+        const result = Array.from(list);
+        const [removed] = result.splice(startIndex, 1);
+        result.splice(endIndex, 0, removed);
+
+        return result;
+    };
+
+    function onDragEnd(result: any) {
+        if (!result.destination) {
+            return;
+        }
+
+        if (result.destination.index === result.source.index) {
+            return;
+        }
+
+        const reorderredActiveItems = reorder(activeItems, result.source.index, result.destination.index);
+
+        setActiveItems(reorderredActiveItems);
+    }
 
     const addItemHandler = (item: iItem) => {
         let activeItemsClone = activeItems.slice(0);
@@ -108,7 +131,20 @@ function App() {
                 <h1 className="ui header">Shopping List</h1>
                 <DateInfo />
             </header>
-            <ShoppingList items={activeItems} updateItem={onItemUpdate} deleteItem={onDeleteActiveItem} />
+            <DragDropContext onDragEnd={onDragEnd}>
+                <Droppable droppableId="list">
+                    {(provided) => (
+                        <div ref={provided.innerRef} {...provided.droppableProps}>
+                            <ShoppingList
+                                items={activeItems}
+                                updateItem={onItemUpdate}
+                                deleteItem={onDeleteActiveItem}
+                            />
+                            {provided.placeholder}
+                        </div>
+                    )}
+                </Droppable>
+            </DragDropContext>
             {tickedItems.length > 0 && (
                 <>
                     <div className="ui divider"></div>

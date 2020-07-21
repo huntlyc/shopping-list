@@ -1,6 +1,5 @@
 import React from 'react';
 import {iItem} from './Item';
-
 type ShoppingListProps = {
     items: iItem[];
     deleteAllTicked: () => void;
@@ -18,7 +17,7 @@ const ShoppingListTicked: React.FC<ShoppingListProps> = ({items, deleteAllTicked
                 </button>
             </h2>
             <ul className="ui relaxed list">
-                {items.map((item) => (
+                {items.map((item: iItem) => (
                     <li className="item" key={item.id}>
                         <del data-id={item.id}>{item.name}</del>
                     </li>
