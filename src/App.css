@@ -53,7 +53,8 @@ form.ui.segment.addItemForm {
 .app ul.ui.list li:before {
     display: none;
 }
-
+h1,
+h2,
 section.ticked-items {
     color: #767676;
 }
@@ -65,4 +66,9 @@ section.ticked-items h2 {
 .drag-marker {
     align-self: center;
     padding: 0 20px;
+}
+
+img.img--cat {
+    width: 100%;
+    height: auto;
 }

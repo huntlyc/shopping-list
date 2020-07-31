@@ -132,27 +132,37 @@ function App() {
 
     let untickedItems = activeItems.filter((curItem) => !curItem.checked);
     let tickedItems = activeItems.filter((curItem) => curItem.checked);
+
+    const tickedAllItems = untickedItems.length === 0 && tickedItems.length > 0;
+
     return (
         <div className="app">
             <header className="ui segment fixed">
                 <h1 className="ui header">Shopping List</h1>
                 <DateInfo />
             </header>
-            <DragDropContext onDragEnd={onDragEnd}>
-                <Droppable droppableId="list">
-                    {(provided) => (
-                        <div ref={provided.innerRef} {...provided.droppableProps}>
-                            <ShoppingList
-                                items={untickedItems}
-                                updateItem={onItemUpdate}
-                                deleteItem={onDeleteActiveItem}
-                                addNextItem={addNextItem}
-                            />
-                            {provided.placeholder}
-                        </div>
-                    )}
-                </Droppable>
-            </DragDropContext>
+            {tickedAllItems ? (
+                <>
+                    <h4 className="ui heading">All Ticked - Did you remember the treats?!</h4>
+                    <img className="img--cat" src={process.env.PUBLIC_URL + '/toffo.jpg'} alt="Toffo" />
+                </>
+            ) : (
+                <DragDropContext onDragEnd={onDragEnd}>
+                    <Droppable droppableId="list">
+                        {(provided) => (
+                            <div ref={provided.innerRef} {...provided.droppableProps}>
+                                <ShoppingList
+                                    items={untickedItems}
+                                    updateItem={onItemUpdate}
+                                    deleteItem={onDeleteActiveItem}
+                                    addNextItem={addNextItem}
+                                />
+                                {provided.placeholder}
+                            </div>
+                        )}
+                    </Droppable>
+                </DragDropContext>
+            )}
             {tickedItems.length > 0 && (
                 <>
                     <div className="ui divider"></div>
