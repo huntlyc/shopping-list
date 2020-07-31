@@ -13,7 +13,12 @@ function App() {
     const isInList = (item: iItem, list: iItem[]) =>
         list.find((searchItem: iItem) => item.name.toLowerCase() === searchItem.name.toLowerCase());
     const deleteFromList = (item: iItem, list: iItem[]): iItem[] => list.filter((curItem) => curItem.id !== item.id);
-    const deleteAllTickedItems = () => setActiveItems(activeItems.filter((curItem) => curItem.checked !== false));
+    const deleteAllTickedItems = () => {
+        const activeItemsClone = activeItems.slice(0);
+        const untickedItems = activeItemsClone.filter((curItem) => curItem.checked !== true);
+
+        setActiveItems(untickedItems);
+    };
 
     const addNextItem = (siblingID: string) => {
         const blankItem = {
@@ -134,6 +139,16 @@ function App() {
     let tickedItems = activeItems.filter((curItem) => curItem.checked);
 
     const tickedAllItems = untickedItems.length === 0 && tickedItems.length > 0;
+    const noItems = untickedItems.length === 0 && tickedItems.length === 0;
+
+    if (noItems) {
+        const blankItem = {
+            id: new Date().getTime().toString(),
+            checked: false,
+            name: '',
+        };
+        setActiveItems([blankItem]);
+    }
 
     return (
         <div className="app">
