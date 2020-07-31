@@ -12,8 +12,6 @@ const AddItemForm: React.FC<AddItemFormProps> = ({addItemHandler}) => {
     const onSubmitHandler = (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (itemName === '') return false;
-
         const newItem: iItem = {
             id: new Date().getTime().toString(),
             checked: false,

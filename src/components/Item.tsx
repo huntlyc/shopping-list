@@ -10,8 +10,9 @@ interface ItemProps {
     item: iItem;
     updateItem: (item: iItem) => void;
     deleteItem: (item: iItem) => void;
+    addNextItem: (siblingID: string) => void;
 }
-export const Item: React.FC<ItemProps> = ({item, updateItem, deleteItem}) => {
+export const Item: React.FC<ItemProps> = ({item, updateItem, deleteItem, addNextItem}) => {
     const id = item.id;
     const [name, setItemName] = useState<string>('');
     const [checked, setItemChecked] = useState<boolean>(false);
@@ -23,6 +24,12 @@ export const Item: React.FC<ItemProps> = ({item, updateItem, deleteItem}) => {
         if (isActive) {
             setItemName(item.name);
             setItemChecked(item.checked);
+
+            if (item.name === '') {
+                if (inputRef.current) {
+                    inputRef.current.focus();
+                }
+            }
         }
 
         return () => {
@@ -59,7 +66,10 @@ export const Item: React.FC<ItemProps> = ({item, updateItem, deleteItem}) => {
 
     const handleEnterPress = (e: React.KeyboardEvent) => {
         e.persist();
-        if (e.keyCode === 13 && inputRef && inputRef.current) {
+        if (e.keyCode === 13 && inputRef && inputRef.current && inputRef.current.getAttribute('data-id')) {
+            // Add a new item underneath
+            const dataID = inputRef.current.getAttribute('data-id') as string;
+            addNextItem(dataID);
             inputRef.current.blur();
         }
     };
@@ -75,6 +85,7 @@ export const Item: React.FC<ItemProps> = ({item, updateItem, deleteItem}) => {
                 </label>
                 <input
                     id={`${id}_${name}`}
+                    data-id={id}
                     type="text"
                     ref={inputRef}
                     value={name}

@@ -15,6 +15,22 @@ function App() {
     const deleteFromList = (item: iItem, list: iItem[]): iItem[] => list.filter((curItem) => curItem.id !== item.id);
     const deleteAllTickedItems = () => setActiveItems(activeItems.filter((curItem) => curItem.checked !== false));
 
+    const addNextItem = (siblingID: string) => {
+        const blankItem = {
+            id: new Date().getTime().toString(),
+            checked: false,
+            name: '',
+        };
+
+        const activeItemsClone = activeItems.slice(0);
+        let siblingIndex = activeItemsClone.findIndex((item) => item.id === siblingID);
+        siblingIndex++; // Insert after, not before.
+
+        activeItemsClone.splice(siblingIndex, 0, blankItem);
+
+        setActiveItems(activeItemsClone);
+    };
+
     const reorder = (list: iItem[], startIndex: number, endIndex: number) => {
         const result = Array.from(list);
         const [removed] = result.splice(startIndex, 1);
@@ -40,19 +56,22 @@ function App() {
     const addItemHandler = (item: iItem) => {
         let activeItemsClone = activeItems.slice(0);
 
-        // If in ticked items, untick and move into active items
-        const exitingItem = isInList(item, activeItems);
-        if (exitingItem) {
-            exitingItem.checked = false;
+        // If not a blank item, check for duplication or already checked.
+        if (item.name !== '') {
+            // If ticked, untick
+            const exitingItem = isInList(item, activeItems);
+            if (exitingItem) {
+                exitingItem.checked = false;
 
-            setActiveItems(activeItemsClone);
+                setActiveItems(activeItemsClone);
 
-            return false;
-        }
+                return false;
+            }
 
-        // If aleady in active items, TODO scroll to exisiting element
-        if (isInList(item, activeItems)) {
-            return false;
+            // If aleady in active items, TODO scroll to exisiting element
+            if (isInList(item, activeItems)) {
+                return false;
+            }
         }
 
         // new item, not in exisiting list, add to active
@@ -127,6 +146,7 @@ function App() {
                                 items={untickedItems}
                                 updateItem={onItemUpdate}
                                 deleteItem={onDeleteActiveItem}
+                                addNextItem={addNextItem}
                             />
                             {provided.placeholder}
                         </div>
