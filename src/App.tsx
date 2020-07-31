@@ -91,12 +91,14 @@ function App() {
     const onItemUpdate = (item: iItem) => {
         let itemsFromState = activeItems.slice(0);
 
-        for (let i = 0; i < itemsFromState.length; i++) {
-            const curItem = itemsFromState[i];
-            if (curItem.id === item.id) {
-                curItem.name = item.name;
-                curItem.checked = item.checked;
-            }
+        const itemIndex = itemsFromState.findIndex((curItem) => curItem.id === item.id);
+        const curItem = itemsFromState[itemIndex];
+
+        curItem.name = item.name;
+        curItem.checked = item.checked;
+
+        if (curItem.checked && curItem.name === '') {
+            itemsFromState.splice(itemIndex, 1);
         }
 
         setActiveItems(itemsFromState);

@@ -66,11 +66,17 @@ export const Item: React.FC<ItemProps> = ({item, updateItem, deleteItem, addNext
 
     const handleEnterPress = (e: React.KeyboardEvent) => {
         e.persist();
+
         if (e.keyCode === 13 && inputRef && inputRef.current && inputRef.current.getAttribute('data-id')) {
             // Add a new item underneath
             const dataID = inputRef.current.getAttribute('data-id') as string;
             addNextItem(dataID);
             inputRef.current.blur();
+        }
+
+        if (e.keyCode === 8 && name === '' && checkboxRef && checkboxRef.current) {
+            checkboxRef.current.checked = true;
+            setItemChecked(true);
         }
     };
     return (
