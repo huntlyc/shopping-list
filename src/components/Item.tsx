@@ -11,14 +11,16 @@ interface ItemProps {
     updateItem: (item: iItem) => void;
     deleteItem: (item: iItem) => void;
     addNextItem: (siblingID: string) => void;
+    focusPrevItem: (siblingID: string) => void;
 }
-export const Item: React.FC<ItemProps> = ({item, updateItem, deleteItem, addNextItem}) => {
+export const Item: React.FC<ItemProps> = ({item, updateItem, deleteItem, addNextItem, focusPrevItem}) => {
     const id = item.id;
     const [name, setItemName] = useState<string>('');
     const [checked, setItemChecked] = useState<boolean>(false);
     const checkboxRef = useRef<HTMLInputElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
 
+    // On init
     useEffect(() => {
         let isActive = true;
         if (isActive) {
@@ -37,6 +39,7 @@ export const Item: React.FC<ItemProps> = ({item, updateItem, deleteItem, addNext
         };
     }, [item]);
 
+    // On item change
     useEffect(() => {
         if (item.name !== name || item.checked !== checked) {
             updateItem({
@@ -64,25 +67,26 @@ export const Item: React.FC<ItemProps> = ({item, updateItem, deleteItem, addNext
         });
     };
 
-    const handleEnterPress = (e: React.KeyboardEvent) => {
+    const handleInputKeyPress = (e: React.KeyboardEvent) => {
         e.persist();
 
-        if (e.keyCode === 13 && inputRef && inputRef.current && inputRef.current.getAttribute('data-id')) {
-            // Add a new item underneath
-            const dataID = inputRef.current.getAttribute('data-id') as string;
-            addNextItem(dataID);
+        // Enter key on list item - Add a new item underneath
+        if (e.keyCode === 13 && inputRef && inputRef.current) {
+            addNextItem(id);
             inputRef.current.blur();
         }
 
+        // Delete key on empty field - delete item by checking it and focus on the previous item
         if (e.keyCode === 8 && name === '' && checkboxRef && checkboxRef.current) {
-            checkboxRef.current.checked = true;
             setItemChecked(true);
+            focusPrevItem(id);
         }
     };
+
     return (
         <>
             <div className="ui checkbox">
-                <input type="checkbox" ref={checkboxRef} checked={item.checked} onChange={onItemCheckChange} />
+                <input type="checkbox" ref={checkboxRef} checked={checked} onChange={onItemCheckChange} />
                 <label aria-label="Check/Uncheck Item"></label>
             </div>
             <div className="ui action input">
@@ -91,12 +95,11 @@ export const Item: React.FC<ItemProps> = ({item, updateItem, deleteItem, addNext
                 </label>
                 <input
                     id={`${id}_${name}`}
-                    data-id={id}
                     type="text"
                     ref={inputRef}
                     value={name}
                     onChange={onItemNameChange}
-                    onKeyUp={handleEnterPress}
+                    onKeyUp={handleInputKeyPress}
                 />
                 <button className="ui red right icon button" onClick={handleDelete}>
                     <i className="trash alternate outline icon" aria-hidden="true"></i>

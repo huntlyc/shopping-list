@@ -10,6 +10,23 @@ type ShoppingListProps = {
 };
 
 const ShoppingList: React.FC<ShoppingListProps> = ({items, updateItem, deleteItem, addNextItem}) => {
+    /**
+     * On deleting an item, focus onto the previous item for super quick list management.
+     * @param curItemID the curently focused item id
+     */
+    const focusPrevItem = (curItemID: string) => {
+        let siblingIndex = items.findIndex((item) => item.id === curItemID);
+        if (siblingIndex > 0) {
+            let siblingItem = items[--siblingIndex];
+            document.getElementById(`${siblingItem.id}_${siblingItem.name}`)?.focus();
+        }
+    };
+
+    /**
+     * Renders an item, wrapps in Draggable for drag-and-drop
+     * @param item {iItem} - the item to render
+     * @param index {number} - current position in the list of items
+     */
     const renderItem = (item: iItem, index: number) => {
         const indexProp = {index};
         return (
@@ -23,7 +40,13 @@ const ShoppingList: React.FC<ShoppingListProps> = ({items, updateItem, deleteIte
                         {...indexProp}
                         key={item.id}
                     >
-                        <Item item={item} deleteItem={deleteItem} updateItem={updateItem} addNextItem={addNextItem} />
+                        <Item
+                            item={item}
+                            deleteItem={deleteItem}
+                            updateItem={updateItem}
+                            addNextItem={addNextItem}
+                            focusPrevItem={focusPrevItem}
+                        />
                     </li>
                 )}
             </Draggable>

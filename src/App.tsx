@@ -8,35 +8,39 @@ import DateInfo from './components/DateInfo';
 import {DragDropContext, Droppable} from 'react-beautiful-dnd';
 
 function App() {
-    const [activeItems, setActiveItems] = useState<iItem[]>([]);
+    const [items, setItems] = useState<iItem[]>([]);
 
-    const isInList = (item: iItem, list: iItem[]) =>
-        list.find((searchItem: iItem) => item.name.toLowerCase() === searchItem.name.toLowerCase());
-    const deleteFromList = (item: iItem, list: iItem[]): iItem[] => list.filter((curItem) => curItem.id !== item.id);
-    const deleteAllTickedItems = () => {
-        const activeItemsClone = activeItems.slice(0);
-        const untickedItems = activeItemsClone.filter((curItem) => curItem.checked !== true);
-
-        setActiveItems(untickedItems);
+    const isItemInList = (item: iItem, list: iItem[]) => {
+        return list.find((searchItem: iItem) => item.name.toLowerCase() === searchItem.name.toLowerCase());
     };
 
-    const addNextItem = (siblingID: string) => {
+    const deleteItemFromList = (item: iItem, list: iItem[]): iItem[] =>
+        list.filter((curItem) => curItem.id !== item.id);
+
+    const deleteAllTickedItems = () => {
+        const itemsClone = items.slice(0);
+        const untickedItems = itemsClone.filter((curItem) => curItem.checked !== true);
+
+        setItems(untickedItems);
+    };
+
+    const addNewItemAfterCurrentItem = (siblingID: string) => {
         const blankItem = {
             id: new Date().getTime().toString(),
             checked: false,
             name: '',
         };
 
-        const activeItemsClone = activeItems.slice(0);
-        let siblingIndex = activeItemsClone.findIndex((item) => item.id === siblingID);
+        const itemsClone = items.slice(0);
+        let siblingIndex = itemsClone.findIndex((item) => item.id === siblingID);
         siblingIndex++; // Insert after, not before.
 
-        activeItemsClone.splice(siblingIndex, 0, blankItem);
+        itemsClone.splice(siblingIndex, 0, blankItem);
 
-        setActiveItems(activeItemsClone);
+        setItems(itemsClone);
     };
 
-    const reorder = (list: iItem[], startIndex: number, endIndex: number) => {
+    const changeItemOrder = (list: iItem[], startIndex: number, endIndex: number) => {
         const result = Array.from(list);
         const [removed] = result.splice(startIndex, 1);
         result.splice(endIndex, 0, removed);
@@ -53,103 +57,106 @@ function App() {
             return;
         }
 
-        const reorderredActiveItems = reorder(activeItems, result.source.index, result.destination.index);
+        const reorderedItems = changeItemOrder(items, result.source.index, result.destination.index);
 
-        setActiveItems(reorderredActiveItems);
+        setItems(reorderedItems);
     }
 
     const addItemHandler = (item: iItem) => {
-        let activeItemsClone = activeItems.slice(0);
+        let itemsClone = items.slice(0);
 
         // If not a blank item, check for duplication or already checked.
         if (item.name !== '') {
             // If ticked, untick
-            const exitingItem = isInList(item, activeItems);
+            const exitingItem = isItemInList(item, items);
             if (exitingItem) {
                 exitingItem.checked = false;
 
-                setActiveItems(activeItemsClone);
+                setItems(itemsClone);
 
                 return false;
             }
 
-            // If aleady in active items, TODO scroll to exisiting element
-            if (isInList(item, activeItems)) {
+            // If aleady in active items, TODO scroll to exisiting element.
+            if (isItemInList(item, items)) {
                 return false;
             }
         }
 
-        // new item, not in exisiting list, add to active
-        activeItemsClone.push(item);
-        setActiveItems(activeItemsClone);
+        // New item, not in exisiting list, add to active.
+        itemsClone.push(item);
+        setItems(itemsClone);
     };
 
     const onDeleteActiveItem = (item: iItem) => {
-        setActiveItems(deleteFromList(item, activeItems.slice(0)));
+        setItems(deleteItemFromList(item, items.slice(0)));
     };
 
     const onItemUpdate = (item: iItem) => {
-        let itemsFromState = activeItems.slice(0);
+        let itemsClone = items.slice(0);
 
-        const itemIndex = itemsFromState.findIndex((curItem) => curItem.id === item.id);
-        const curItem = itemsFromState[itemIndex];
+        const itemIndex = itemsClone.findIndex((curItem) => curItem.id === item.id);
+        const curItem = itemsClone[itemIndex];
 
         curItem.name = item.name;
         curItem.checked = item.checked;
 
         if (curItem.checked && curItem.name === '') {
-            itemsFromState.splice(itemIndex, 1);
+            itemsClone.splice(itemIndex, 1);
         }
 
-        setActiveItems(itemsFromState);
+        setItems(itemsClone);
     };
 
     //On load, pull from local storage
     useEffect(() => {
-        //Active items
-        const storageActiveItems = localStorage.getItem('shopList');
-        if (storageActiveItems) {
-            setActiveItems(JSON.parse(storageActiveItems));
+        const storageItems = localStorage.getItem('shopList');
+        if (storageItems) {
+            setItems(JSON.parse(storageItems));
         }
 
-        //Deprecated: Ticked list - remove if found.
+        // !! Deprecated: Ticked list - remove if found.
         const storageTickedItems = localStorage.getItem('shopListTicked');
         if (storageTickedItems) {
             localStorage.removeItem('shopListTicked');
         }
     }, []);
 
-    // On list update, save to local storage
+    // On list update, save to local storage.
     useEffect(() => {
-        // Active items
-        const storageActiveItems = localStorage.getItem('shopList');
+        const storageItems = localStorage.getItem('shopList');
 
-        if (storageActiveItems) {
+        if (storageItems) {
             localStorage.removeItem('shopList');
         }
 
-        localStorage.setItem('shopList', JSON.stringify(activeItems));
+        localStorage.setItem('shopList', JSON.stringify(items));
 
-        // Ticked items
+        // !! Deprecated: Ticked list - remove if found.
         const storageTickedItems = localStorage.getItem('shopListTicked');
         if (storageTickedItems) {
             localStorage.removeItem('shopListTicked');
         }
-    }, [activeItems]);
+    }, [items]);
 
-    let untickedItems = activeItems.filter((curItem) => !curItem.checked);
-    let tickedItems = activeItems.filter((curItem) => curItem.checked);
+    // Filter out our list into ticked and unticked lists.
+    let tickedItems = items.filter((curItem) => curItem.checked);
+    let untickedItems = items.filter((curItem) => !curItem.checked);
 
-    const tickedAllItems = untickedItems.length === 0 && tickedItems.length > 0;
-    const noItems = untickedItems.length === 0 && tickedItems.length === 0;
+    const allItemsTicked = untickedItems.length === 0 && tickedItems.length > 0;
+    const emptyList = items.length === 0;
 
-    if (noItems) {
+    /**
+     * If no items (ticked and unticked) - prefill with a blank item placeholder which will
+     * be automatically focused for input.
+     **/
+    if (emptyList) {
         const blankItem = {
             id: new Date().getTime().toString(),
             checked: false,
             name: '',
         };
-        setActiveItems([blankItem]);
+        setItems([blankItem]);
     }
 
     return (
@@ -158,7 +165,7 @@ function App() {
                 <h1 className="ui header">Shopping List</h1>
                 <DateInfo />
             </header>
-            {tickedAllItems ? (
+            {allItemsTicked ? (
                 <>
                     <h4 className="ui heading">All Ticked - Did you remember the treats?!</h4>
                     <img className="img--cat" src={process.env.PUBLIC_URL + '/toffo.jpg'} alt="Toffo" />
@@ -172,7 +179,7 @@ function App() {
                                     items={untickedItems}
                                     updateItem={onItemUpdate}
                                     deleteItem={onDeleteActiveItem}
-                                    addNextItem={addNextItem}
+                                    addNextItem={addNewItemAfterCurrentItem}
                                 />
                                 {provided.placeholder}
                             </div>

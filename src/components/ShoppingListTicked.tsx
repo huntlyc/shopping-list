@@ -1,17 +1,19 @@
 import React from 'react';
 import {iItem} from './Item';
+
 type ShoppingListProps = {
     items: iItem[];
     deleteAllTicked: () => void;
 };
 
 const ShoppingListTicked: React.FC<ShoppingListProps> = ({items, deleteAllTicked}) => {
-    const handleDelete = () => deleteAllTicked();
+    const handleClickDeleteAllTicked = () => deleteAllTicked();
+
     return (
         <section className="ticked-items ui grey">
             <h2>
                 Ticked Items{' '}
-                <button className="ui red label" onClick={handleDelete}>
+                <button className="ui red label" onClick={handleClickDeleteAllTicked}>
                     <i className="trash alternate outline icon" aria-hidden="true"></i>
                     Clear
                 </button>
