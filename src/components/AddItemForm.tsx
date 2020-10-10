@@ -12,8 +12,6 @@ const AddItemForm: React.FC<AddItemFormProps> = ({addItemHandler}) => {
     const onSubmitHandler = (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (itemName === '') return false;
-
         const newItem: iItem = {
             id: new Date().getTime().toString(),
             checked: false,
@@ -22,8 +20,8 @@ const AddItemForm: React.FC<AddItemFormProps> = ({addItemHandler}) => {
 
         addItemHandler(newItem);
 
-        setItemName('');
-
+        // Clear input and retain focus
+        setItemName(''); // Clear the input by seting the name state to: ''
         if (itemNameRef && itemNameRef.current) {
             itemNameRef.current.blur();
         }

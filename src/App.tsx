@@ -8,15 +8,39 @@ import DateInfo from './components/DateInfo';
 import {DragDropContext, Droppable} from 'react-beautiful-dnd';
 
 function App() {
-    const [activeItems, setActiveItems] = useState<iItem[]>([]);
-    const [tickedItems, setTickedItems] = useState<iItem[]>([]);
+    const [items, setItems] = useState<iItem[]>([]);
 
-    const isInList = (item: iItem, list: iItem[]) =>
-        list.find((searchItem: iItem) => item.name.toLowerCase() === searchItem.name.toLowerCase());
-    const deleteFromList = (item: iItem, list: iItem[]): iItem[] => list.filter((curItem) => curItem.id !== item.id);
-    const deleteAllTickedItems = () => setTickedItems([]);
+    const isItemInList = (item: iItem, list: iItem[]) => {
+        return list.find((searchItem: iItem) => item.name.toLowerCase() === searchItem.name.toLowerCase());
+    };
 
-    const reorder = (list: iItem[], startIndex: number, endIndex: number) => {
+    const deleteItemFromList = (item: iItem, list: iItem[]): iItem[] =>
+        list.filter((curItem) => curItem.id !== item.id);
+
+    const deleteAllTickedItems = () => {
+        const itemsClone = items.slice(0);
+        const untickedItems = itemsClone.filter((curItem) => curItem.checked !== true);
+
+        setItems(untickedItems);
+    };
+
+    const addNewItemAfterCurrentItem = (siblingID: string) => {
+        const blankItem = {
+            id: new Date().getTime().toString(),
+            checked: false,
+            name: '',
+        };
+
+        const itemsClone = items.slice(0);
+        let siblingIndex = itemsClone.findIndex((item) => item.id === siblingID);
+        siblingIndex++; // Insert after, not before.
+
+        itemsClone.splice(siblingIndex, 0, blankItem);
+
+        setItems(itemsClone);
+    };
+
+    const changeItemOrder = (list: iItem[], startIndex: number, endIndex: number) => {
         const result = Array.from(list);
         const [removed] = result.splice(startIndex, 1);
         result.splice(endIndex, 0, removed);
@@ -33,97 +57,107 @@ function App() {
             return;
         }
 
-        const reorderredActiveItems = reorder(activeItems, result.source.index, result.destination.index);
+        const reorderedItems = changeItemOrder(items, result.source.index, result.destination.index);
 
-        setActiveItems(reorderredActiveItems);
+        setItems(reorderedItems);
     }
 
     const addItemHandler = (item: iItem) => {
-        let activeItemsClone = activeItems.slice(0);
-        let tickedItemsClone = tickedItems.slice(0);
+        let itemsClone = items.slice(0);
 
-        // If in ticked items, untick and move into active items
-        const exitingItem = isInList(item, tickedItems);
-        if (exitingItem) {
-            exitingItem.checked = false;
-            setTickedItems(deleteFromList(exitingItem, tickedItemsClone));
+        // If not a blank item, check for duplication or already checked.
+        if (item.name !== '') {
+            // If ticked, untick
+            const exitingItem = isItemInList(item, items);
+            if (exitingItem) {
+                exitingItem.checked = false;
 
-            activeItemsClone.push(exitingItem);
-            setActiveItems(activeItemsClone);
+                setItems(itemsClone);
 
-            return false;
-        }
+                return false;
+            }
 
-        // If aleady in active items, TODO scroll to exisiting element
-        if (isInList(item, activeItems)) {
-            return false;
-        }
-
-        // new item, not in exisiting list, add to active
-        activeItemsClone.push(item);
-        setActiveItems(activeItemsClone);
-    };
-
-    const onDeleteActiveItem = (item: iItem) => {
-        setActiveItems(deleteFromList(item, activeItems.slice(0)));
-    };
-
-    const onItemUpdate = (item: iItem) => {
-        let itemsFromState = activeItems.slice(0);
-        let tickedItemsFromState = tickedItems.slice(0);
-
-        for (let i = 0; i < itemsFromState.length; i++) {
-            const curItem = itemsFromState[i];
-            if (curItem.id === item.id) {
-                curItem.name = item.name;
-                curItem.checked = item.checked;
+            // If aleady in active items, TODO scroll to exisiting element.
+            if (isItemInList(item, items)) {
+                return false;
             }
         }
 
-        // If ticked switch from active list to ticked list
-        if (item.checked) {
-            tickedItemsFromState.unshift(item);
-            itemsFromState = deleteFromList(item, itemsFromState);
+        // New item, not in exisiting list, add to active.
+        itemsClone.push(item);
+        setItems(itemsClone);
+    };
+
+    const onDeleteActiveItem = (item: iItem) => {
+        setItems(deleteItemFromList(item, items.slice(0)));
+    };
+
+    const onItemUpdate = (item: iItem) => {
+        let itemsClone = items.slice(0);
+
+        const itemIndex = itemsClone.findIndex((curItem) => curItem.id === item.id);
+        const curItem = itemsClone[itemIndex];
+
+        curItem.name = item.name;
+        curItem.checked = item.checked;
+
+        if (curItem.checked && curItem.name === '') {
+            itemsClone.splice(itemIndex, 1);
         }
 
-        setActiveItems(itemsFromState);
-        setTickedItems(tickedItemsFromState);
+        setItems(itemsClone);
     };
 
     //On load, pull from local storage
     useEffect(() => {
-        //Active items
-        const storageActiveItems = localStorage.getItem('shopList');
-        if (storageActiveItems) {
-            setActiveItems(JSON.parse(storageActiveItems));
+        const storageItems = localStorage.getItem('shopList');
+        if (storageItems) {
+            setItems(JSON.parse(storageItems));
         }
 
-        //Ticked list
-        const storageTickedItems = localStorage.getItem('shopListTicked');
-        if (storageTickedItems) {
-            setTickedItems(JSON.parse(storageTickedItems));
-        }
-    }, []);
-
-    // On list update, save to local storage
-    useEffect(() => {
-        // Active items
-        const storageActiveItems = localStorage.getItem('shopList');
-
-        if (storageActiveItems) {
-            localStorage.removeItem('shopList');
-        }
-
-        localStorage.setItem('shopList', JSON.stringify(activeItems));
-
-        // Ticked items
+        // !! Deprecated: Ticked list - remove if found.
         const storageTickedItems = localStorage.getItem('shopListTicked');
         if (storageTickedItems) {
             localStorage.removeItem('shopListTicked');
         }
+    }, []);
 
-        localStorage.setItem('shopListTicked', JSON.stringify(tickedItems));
-    }, [activeItems, tickedItems]);
+    // On list update, save to local storage.
+    useEffect(() => {
+        const storageItems = localStorage.getItem('shopList');
+
+        if (storageItems) {
+            localStorage.removeItem('shopList');
+        }
+
+        localStorage.setItem('shopList', JSON.stringify(items));
+
+        // !! Deprecated: Ticked list - remove if found.
+        const storageTickedItems = localStorage.getItem('shopListTicked');
+        if (storageTickedItems) {
+            localStorage.removeItem('shopListTicked');
+        }
+    }, [items]);
+
+    // Filter out our list into ticked and unticked lists.
+    let tickedItems = items.filter((curItem) => curItem.checked);
+    let untickedItems = items.filter((curItem) => !curItem.checked);
+
+    const allItemsTicked = untickedItems.length === 0 && tickedItems.length > 0;
+    const emptyList = items.length === 0;
+
+    /**
+     * If no items (ticked and unticked) - prefill with a blank item placeholder which will
+     * be automatically focused for input.
+     **/
+    if (emptyList) {
+        const blankItem = {
+            id: new Date().getTime().toString(),
+            checked: false,
+            name: '',
+        };
+        setItems([blankItem]);
+    }
 
     return (
         <div className="app">
@@ -131,20 +165,28 @@ function App() {
                 <h1 className="ui header">Shopping List</h1>
                 <DateInfo />
             </header>
-            <DragDropContext onDragEnd={onDragEnd}>
-                <Droppable droppableId="list">
-                    {(provided) => (
-                        <div ref={provided.innerRef} {...provided.droppableProps}>
-                            <ShoppingList
-                                items={activeItems}
-                                updateItem={onItemUpdate}
-                                deleteItem={onDeleteActiveItem}
-                            />
-                            {provided.placeholder}
-                        </div>
-                    )}
-                </Droppable>
-            </DragDropContext>
+            {allItemsTicked ? (
+                <>
+                    <h4 className="ui heading">All Ticked - Did you remember the treats?!</h4>
+                    <img className="img--cat" src={process.env.PUBLIC_URL + '/toffo.jpg'} alt="Toffo" />
+                </>
+            ) : (
+                <DragDropContext onDragEnd={onDragEnd}>
+                    <Droppable droppableId="list">
+                        {(provided) => (
+                            <div ref={provided.innerRef} {...provided.droppableProps}>
+                                <ShoppingList
+                                    items={untickedItems}
+                                    updateItem={onItemUpdate}
+                                    deleteItem={onDeleteActiveItem}
+                                    addNextItem={addNewItemAfterCurrentItem}
+                                />
+                                {provided.placeholder}
+                            </div>
+                        )}
+                    </Droppable>
+                </DragDropContext>
+            )}
             {tickedItems.length > 0 && (
                 <>
                     <div className="ui divider"></div>

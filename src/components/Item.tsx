@@ -10,19 +10,28 @@ interface ItemProps {
     item: iItem;
     updateItem: (item: iItem) => void;
     deleteItem: (item: iItem) => void;
+    addNextItem: (siblingID: string) => void;
+    focusPrevItem: (siblingID: string) => void;
 }
-export const Item: React.FC<ItemProps> = ({item, updateItem, deleteItem}) => {
+export const Item: React.FC<ItemProps> = ({item, updateItem, deleteItem, addNextItem, focusPrevItem}) => {
     const id = item.id;
     const [name, setItemName] = useState<string>('');
     const [checked, setItemChecked] = useState<boolean>(false);
     const checkboxRef = useRef<HTMLInputElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
 
+    // On init
     useEffect(() => {
         let isActive = true;
         if (isActive) {
             setItemName(item.name);
             setItemChecked(item.checked);
+
+            if (item.name === '') {
+                if (inputRef.current) {
+                    inputRef.current.focus();
+                }
+            }
         }
 
         return () => {
@@ -30,6 +39,7 @@ export const Item: React.FC<ItemProps> = ({item, updateItem, deleteItem}) => {
         };
     }, [item]);
 
+    // On item change
     useEffect(() => {
         if (item.name !== name || item.checked !== checked) {
             updateItem({
@@ -57,17 +67,40 @@ export const Item: React.FC<ItemProps> = ({item, updateItem, deleteItem}) => {
         });
     };
 
+    const handleInputKeyPress = (e: React.KeyboardEvent) => {
+        e.persist();
+
+        // Enter key on list item - Add a new item underneath
+        if (e.keyCode === 13 && inputRef && inputRef.current) {
+            addNextItem(id);
+            inputRef.current.blur();
+        }
+
+        // Delete key on empty field - delete item by checking it and focus on the previous item
+        if (e.keyCode === 8 && name === '' && checkboxRef && checkboxRef.current) {
+            setItemChecked(true);
+            focusPrevItem(id);
+        }
+    };
+
     return (
         <>
             <div className="ui checkbox">
-                <input type="checkbox" ref={checkboxRef} checked={item.checked} onChange={onItemCheckChange} />
+                <input type="checkbox" ref={checkboxRef} checked={checked} onChange={onItemCheckChange} />
                 <label aria-label="Check/Uncheck Item"></label>
             </div>
             <div className="ui action input">
                 <label htmlFor={`${id}_${name}`} className="sr-only">
                     Item
                 </label>
-                <input id={`${id}_${name}`} type="text" ref={inputRef} value={name} onChange={onItemNameChange} />
+                <input
+                    id={`${id}_${name}`}
+                    type="text"
+                    ref={inputRef}
+                    value={name}
+                    onChange={onItemNameChange}
+                    onKeyUp={handleInputKeyPress}
+                />
                 <button className="ui red right icon button" onClick={handleDelete}>
                     <i className="trash alternate outline icon" aria-hidden="true"></i>
                     <span className="sr-only">Delete Item</span>
