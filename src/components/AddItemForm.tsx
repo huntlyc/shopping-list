@@ -25,7 +25,7 @@ const AddItemForm: React.FC<AddItemFormProps> = ({addItemHandler}) => {
         setItemName('');
 
         if (itemNameRef && itemNameRef.current) {
-            itemNameRef.current.focus();
+            itemNameRef.current.blur();
         }
 
         return false;
