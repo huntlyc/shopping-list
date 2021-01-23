@@ -189,7 +189,7 @@ function App() {
             {tickedItems.length > 0 && (
                 <>
                     <div className="ui divider"></div>
-                    <ShoppingListTicked items={tickedItems} deleteAllTicked={deleteAllTickedItems} />
+                    <ShoppingListTicked items={untickedItems} tickedItems={tickedItems} deleteAllTicked={deleteAllTickedItems} />
                 </>
             )}
         </div>

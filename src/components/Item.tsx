@@ -105,7 +105,7 @@ export const Item: React.FC<ItemProps> = ({item, updateItem, deleteItem, addNext
                     <i className="trash alternate outline icon" aria-hidden="true"></i>
                     <span className="sr-only">Delete Item</span>
                 </button>
-                <i className="drag-marker big grey ellipsis vertical icon"></i>
+                <i className="drag-marker big grey arrows alternate vertical icon"></i>
             </div>
         </>
     );
