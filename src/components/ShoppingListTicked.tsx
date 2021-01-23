@@ -12,7 +12,7 @@ const ShoppingListTicked: React.FC<ShoppingListProps> = ({items, deleteAllTicked
     return (
         <section className="ticked-items ui grey">
             <h2>
-                Ticked Items{' '}
+                Found Items{' '}
                 <button className="ui red label" onClick={handleClickDeleteAllTicked}>
                     <i className="trash alternate outline icon" aria-hidden="true"></i>
                     Clear

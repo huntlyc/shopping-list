@@ -18,11 +18,8 @@ body {
 }
 
 .app {
-    padding: 100px 1rem;
-}
-
-.app h1.ui.header {
-    font-size: 18px;
+    padding: 1rem;
+    padding-top: 120px;
 }
 
 header.ui.segment.fixed {
@@ -31,19 +28,26 @@ header.ui.segment.fixed {
     left: 0;
     width: 100%;
     background-color: #fff;
-    z-index: 1;
+    z-index: 2;
 }
 
-form.ui.segment.addItemForm {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
+.app h1.ui.header {
+    font-size: 18px;
+}
+
+.app header hr{
+    outline: none;
+    border: none;
+    margin: 20px 0;
+    height: 1px;
+    background-color: rgba(0, 181, 173, 0.2);
+
 }
 
 .app ul.ui.list {
     margin-left: 0;
     list-style-type: none;
+    width: 300px;
 }
 
 .app ul.ui.list li {

@@ -2,7 +2,6 @@ import React, {useState, useEffect} from 'react';
 import './App.css';
 import ShoppingList from './components/ShoppingList';
 import ShoppingListTicked from './components/ShoppingListTicked';
-import AddItemForm from './components/AddItemForm';
 import {iItem} from './components/Item';
 import DateInfo from './components/DateInfo';
 import {DragDropContext, Droppable} from 'react-beautiful-dnd';
@@ -193,7 +192,6 @@ function App() {
                     <ShoppingListTicked items={tickedItems} deleteAllTicked={deleteAllTickedItems} />
                 </>
             )}
-            <AddItemForm addItemHandler={addItemHandler} />
         </div>
     );
 }
