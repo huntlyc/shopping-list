@@ -77,9 +77,13 @@ function App() {
         curItem.name = item.name;
         curItem.checked = item.checked;
 
-        if (curItem.checked && curItem.name === '') {
-            itemsClone.splice(itemIndex, 1);
+        if (curItem.checked){
+            const removedItem = itemsClone.splice(itemIndex, 1)[0]; 
+            if(curItem.name !== '') {
+                itemsClone.push(removedItem);
+            }
         }
+
 
         setItems(itemsClone);
     };
